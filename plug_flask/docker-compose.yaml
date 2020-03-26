@@ -1,18 +1,37 @@
-version: '3.7'
+version: "3.7"
 services:
-  flask-app:
-    build: ./plug_final
+   plugx69:
+    image: tinokingstone/plugx69:latest
+    build: .
+    networks:
+      - plugx69
     ports:
-    - target: 5000
-      published: 5000
-      protocol: tcp
-  nginx:
-    image: nginx:latest
+      - target: 5000
+        published: 5000
+        protocol: tcp
+    depends_on:
+      - plugx69-db
+    environment:
+      - DATABASE_URI=mysql+pymysql://root:${PWD_ROOT}@mysqlx69:3306/flaskapp
+      - SECRET_KEY=${MY_SECRET_KEY}
+   plugx69-db:
+    image: tinokingstone/mysql:5.7
+    build: ./db/
+    container_name: plugx69-db
+    networks:
+      - plugx69
     ports:
-    - target: 80
-      published: 80
-      protocol: tcp
+      - target: 3306
+        published: 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${PWD_ROOT}
     volumes:
-    - type: bind
-      source: ./nginx/nginx.conf
-      target: /etc/nginx/nginx.conf
+      - type: volume
+        source: flasksql
+        target: /var/lib/mysql 
+    redis:
+      image: redis:alpine      
+networks:
+  plugx69:
+volumes:
+  flasksql:
